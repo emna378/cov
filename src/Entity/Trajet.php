@@ -120,7 +120,6 @@ class Trajet
     public function setChauffeur(?Chauffeur $chauffeur): static
     {
         $this->chauffeur = $chauffeur;
-
-        return $this;
+         return $this;
     }
 }
