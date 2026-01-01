@@ -93,6 +93,6 @@ $chauffeur = $this->getUser();
     // Redirection vers le dashboard du chauffeur
     return $this->redirectToRoute('app_chauffeur_show', [
         'id' => $chauffeur->getId(),
-    ]);
+    ]); 
 }
 }
