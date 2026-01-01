@@ -10,6 +10,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+
 
 #[Route('/chauffeur')]
 final class ChauffeurController extends AbstractController
@@ -22,25 +24,34 @@ final class ChauffeurController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_chauffeur_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
-    {
-        $chauffeur = new Chauffeur();
-        $form = $this->createForm(ChauffeurType::class, $chauffeur);
-        $form->handleRequest($request);
+   #[Route('/new', name: 'app_chauffeur_new', methods: ['GET', 'POST'])]
+public function new(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
+{
+    $chauffeur = new Chauffeur();
+    $form = $this->createForm(ChauffeurType::class, $chauffeur);
+    $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($chauffeur);
-            $entityManager->flush();
+    if ($form->isSubmitted() && $form->isValid()) {
 
-            return $this->redirectToRoute('app_chauffeur_index', [], Response::HTTP_SEE_OTHER);
-        }
+        // 🔹 HASH du mot de passe avant persist
+        $hashedPassword = $passwordHasher->hashPassword($chauffeur, $chauffeur->getPassword());
+        $chauffeur->setPassword($hashedPassword);
 
-        return $this->render('chauffeur/new.html.twig', [
-            'chauffeur' => $chauffeur,
-            'form' => $form,
-        ]);
+        // 🔹 Définir le rôle
+        $chauffeur->setRoles(['ROLE_CHAUFFEUR']);
+
+        $entityManager->persist($chauffeur);
+        $entityManager->flush();
+
+        return $this->redirectToRoute('app_login'); // redirection vers login
     }
+
+    return $this->render('chauffeur/new.html.twig', [
+        'chauffeur' => $chauffeur,
+        'form' => $form,
+    ]);
+}
+
 
     #[Route('/{id}', name: 'app_chauffeur_show', methods: ['GET'])]
     public function show(Chauffeur $chauffeur): Response
@@ -59,7 +70,9 @@ final class ChauffeurController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_chauffeur_index', [], Response::HTTP_SEE_OTHER);
+           return $this->redirectToRoute('app_chauffeur_show', [
+            'id' => $chauffeur->getId(),
+           ]);
         }
 
         return $this->render('chauffeur/edit.html.twig', [

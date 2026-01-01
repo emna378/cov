@@ -58,9 +58,11 @@
         </tbody>
     </table>
 
-    <a href="{{ path('app_chauffeur_index') }}">back to list</a>
+    <a href="/chauffeur">logout</a>
 
     <a href="{{ path('app_chauffeur_edit', {'id': chauffeur.id}) }}">edit</a>
+       <a href="/trajet/new">ajouter trajet </a>
+    <a href="/voiture/new">ajouter voiture  </a>
 
     {{ include('chauffeur/_delete_form.html.twig') }}
 {% endblock %}
