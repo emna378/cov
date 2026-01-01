@@ -55,7 +55,7 @@ class Chauffeur implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $status = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $role = null;
+    private ?string $role = "chauffeur";
 
     /**
      * @var Collection<int, Voiture>
