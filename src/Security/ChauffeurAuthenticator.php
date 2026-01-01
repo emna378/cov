@@ -28,28 +28,29 @@ class ChauffeurAuthenticator extends AbstractLoginFormAuthenticator
     {
     }
 
-    public function authenticate(Request $request): Passport
-    {
-        $email = $request->getPayload()->getString('email');
+   public function authenticate(Request $request): Passport
+{
+    $email = $request->request->get('email'); // <- ici
 
-        $request->getSession()->set(SecurityRequestAttributes::LAST_USERNAME, $email);
+    $request->getSession()->set(SecurityRequestAttributes::LAST_USERNAME, $email);
 
-        return new Passport(
-            new UserBadge($email),
-            new PasswordCredentials($request->getPayload()->getString('password')),
-            [
-                new CsrfTokenBadge('authenticate', $request->getPayload()->getString('_csrf_token')),
-                new RememberMeBadge(),
-            ]
-        );
-    }
+    return new Passport(
+        new UserBadge($email),
+        new PasswordCredentials($request->request->get('password')), // <- icis
+        [
+            new CsrfTokenBadge('authenticate', $request->request->get('_csrf_token')), // <- ici
+            new RememberMeBadge(),
+        ]
+    );
+}
+
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
         // Redirection vers la page cible si elle existe
-        if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
-            return new RedirectResponse($targetPath);
-        }
+      //  if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
+        //    return new RedirectResponse($targetPath);
+        //}
 
         // Récupère l'utilisateur connecté
         $user = $token->getUser();

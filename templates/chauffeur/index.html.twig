@@ -3,55 +3,971 @@
 {% block title %}Chauffeur index{% endblock %}
 
 {% block body %}
-    <h1>Chauffeur index</h1>
+   
+  
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Email</th>
-                <th>Roles</th>
-                <th>Password</th>
-                <th>Name</th>
-                <th>Age</th>
-                <th>Cin</th>
-                <th>Permi</th>
-                <th>Photo</th>
-                <th>Phone</th>
-                <th>Status</th>
-                <th>Role</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for chauffeur in chauffeurs %}
-            <tr>
-                <td>{{ chauffeur.id }}</td>
-                <td>{{ chauffeur.email }}</td>
-                <td>{{ chauffeur.roles ? chauffeur.roles|json_encode : '' }}</td>
-                <td>{{ chauffeur.password }}</td>
-                <td>{{ chauffeur.name }}</td>
-                <td>{{ chauffeur.age }}</td>
-                <td>{{ chauffeur.cin }}</td>
-                <td>{{ chauffeur.permi }}</td>
-                <td>{{ chauffeur.photo }}</td>
-                <td>{{ chauffeur.phone }}</td>
-                <td>{{ chauffeur.status }}</td>
-                <td>{{ chauffeur.role }}</td>
-                <td>
-                    <a href="{{ path('app_chauffeur_show', {'id': chauffeur.id}) }}">show</a>
-                    <a href="{{ path('app_chauffeur_edit', {'id': chauffeur.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="13">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoRoute - Covoiturage Écologique et Économique</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Styles généraux */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary-color: #2e7d32;
+            --secondary-color: #4caf50;
+            --accent-color: #ff9800;
+            --dark-color: #1b5e20;
+            --light-color: #f1f8e9;
+            --gray-color: #f5f5f5;
+            --text-color: #333;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        body {
+            color: var(--text-color);
+            line-height: 1.6;
+            background-color: #fff;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 16px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--dark-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .btn-secondary {
+            background-color: white;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .btn-accent {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        
+        .btn-accent:hover {
+            background-color: #f57c00;
+            transform: translateY(-2px);
+        }
+        
+        section {
+            padding: 80px 0;
+        }
+        
+        h1, h2, h3 {
+            line-height: 1.2;
+            margin-bottom: 20px;
+            color: var(--dark-color);
+        }
+        
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+        }
+        
+        h2 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+        }
+        
+        h2:after {
+            content: '';
+            position: absolute;
+            width: 80px;
+            height: 4px;
+            background-color: var(--accent-color);
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        p {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+        
+        /* Header et Navigation */
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        .logo i {
+            margin-right: 10px;
+            font-size: 2rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-left: 30px;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 600;
+            transition: color 0.3s;
+            font-size: 1.05rem;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            font-size: 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--primary-color);
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(46, 125, 50, 0.85), rgba(27, 94, 32, 0.9)), url('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2069&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            text-align: center;
+            padding: 120px 0;
+        }
+        
+        .hero h1 {
+            color: white;
+            margin-bottom: 25px;
+            font-size: 3.5rem;
+        }
+        
+        .hero p {
+            font-size: 1.3rem;
+            max-width: 800px;
+            margin: 0 auto 40px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        /* Formulaire de recherche */
+        .search-form {
+            background-color: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            max-width: 1000px;
+            margin: 0 auto;
+            margin-top: 40px;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+        }
+        
+        .search-btn {
+            width: 100%;
+            padding: 16px;
+            font-size: 1.1rem;
+            margin-top: 10px;
+        }
+        
+        /* Avantages */
+        .advantages {
+            background-color: var(--gray-color);
+        }
+        
+        .advantages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+        
+        .advantage-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 35px 25px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s;
+        }
+        
+        .advantage-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .advantage-card i {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .advantage-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        
+        /* Comment ça marche */
+        .steps {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .step {
+            flex: 1;
+            min-width: 250px;
+            max-width: 300px;
+            text-align: center;
+            padding: 25px;
+            position: relative;
+        }
+        
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0 auto 25px;
+        }
+        
+        .step h3 {
+            margin-bottom: 15px;
+        }
+        
+        /* Témoignages */
+        .testimonials {
+            background-color: var(--gray-color);
+        }
+        
+        .testimonial-slider {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .testimonial {
+            background-color: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            display: none;
+        }
+        
+        .testimonial.active {
+            display: block;
+        }
+        
+        .testimonial img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+            border: 4px solid var(--light-color);
+        }
+        
+        .testimonial p {
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+        
+        .testimonial-author {
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+        
+        .slider-controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .slider-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #ccc;
+            margin: 0 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .slider-dot.active {
+            background-color: var(--primary-color);
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 60px 0 30px;
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-column {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .footer-column h3 {
+            color: white;
+            margin-bottom: 25px;
+            font-size: 1.3rem;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .footer-column h3:after {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 3px;
+            background-color: var(--accent-color);
+            bottom: 0;
+            left: 0;
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+        
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: var(--accent-color);
+        }
+        
+        .social-icons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .social-icons a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: white;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+        
+        .social-icons a:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-3px);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            h1 {
+                font-size: 2.8rem;
+            }
+            
+            h2 {
+                font-size: 2.2rem;
+            }
+            
+            .hero h1 {
+                font-size: 3rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background-color: white;
+                flex-direction: column;
+                padding: 20px;
+                box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            }
+            
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .nav-links li {
+                margin: 15px 0;
+                margin-left: 0;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .hero {
+                padding: 100px 0;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            section {
+                padding: 60px 0;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            h1 {
+                font-size: 2.3rem;
+            }
+            
+            h2 {
+                font-size: 1.8rem;
+            }
+            
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .search-form {
+                padding: 25px 20px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .login-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-    <a href="{{ path('app_chauffeur_new') }}">inscription </a>
-    <a href="/login">login </a>
+.login-card {
+    background: white;
+    padding: 40px;
+    border-radius: 15px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    animation: fadeIn 0.4s ease;
+}
+
+.login-card h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: var(--primary-color);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+        }
+    </style>
+</head>
+<body>
+    <!-- Header et Navigation -->
+    <header>
+        <div class="container">
+            <nav>
+                <a href="#" class="logo">
+                    <i class="fas fa-car"></i> EcoRoute
+                </a>
+                
+                <ul class="nav-links">
+                    <li><a href="#" class="active">Accueil</a></li>
+                    <li><a href="#">Rechercher un trajet</a></li>
+                    <li><a href="#">Proposer un trajet</a></li>
+                    <li><a href="#">Comment ça marche</a></li>
+                    <li><a href="{{ path('app_login') }}">Connexion</a></li>
+                    <li><a href="{{ path('app_chauffeur_new') }}" class="btn btn-primary">Inscription</a></li>
+                </ul>
+                
+                <button class="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Partagez vos trajets, réduisez vos coûts</h1>
+            <p>Rejoignez la plus grande communauté de covoiturage en France. Voyagez écolo, économisez de l'argent et faites de belles rencontres.</p>
+            
+            <div class="search-form">
+                <h3>Où souhaitez-vous aller ?</h3>
+                <form id="rideSearch">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="departure">Départ</label>
+                            <input type="text" id="departure" class="form-control" placeholder="Ville de départ" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="destination">Destination</label>
+                            <input type="text" id="destination" class="form-control" placeholder="Ville d'arrivée" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="date">Date</label>
+                            <input type="date" id="date" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="passengers">Passagers</label>
+                            <select id="passengers" class="form-control">
+                                <option value="1">1 passager</option>
+                                <option value="2">2 passagers</option>
+                                <option value="3">3 passagers</option>
+                                <option value="4">4 passagers</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-accent search-btn">
+                        <i class="fas fa-search"></i> Rechercher un trajet
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Avantages -->
+    <section class="advantages">
+        <div class="container">
+            <h2>Pourquoi choisir EcoRoute ?</h2>
+            <div class="advantages-grid">
+                <div class="advantage-card">
+                    <i class="fas fa-euro-sign"></i>
+                    <h3>Économique</h3>
+                    <p>Partagez les frais de route avec d'autres voyageurs et réduisez vos dépenses de transport jusqu'à 75%.</p>
+                </div>
+                <div class="advantage-card">
+                    <i class="fas fa-leaf"></i>
+                    <h3>Écologique</h3>
+                    <p>Un seul véhicule pour plusieurs personnes, c'est moins de CO₂ et un geste pour la planète.</p>
+                </div>
+                <div class="advantage-card">
+                    <i class="fas fa-users"></i>
+                    <h3>Communautaire</h3>
+                    <p>Rencontrez des personnes qui partagent vos trajets quotidiens ou vos voyages occasionnels.</p>
+                </div>
+                <div class="advantage-card">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>Sécurisé</h3>
+                    <p>Profils vérifiés, système de notation et d'avis, et assurance incluse pour tous les trajets.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comment ça marche -->
+    <section class="how-it-works">
+        <div class="container">
+            <h2>Comment ça marche ?</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Inscrivez-vous</h3>
+                    <p>Créez votre compte gratuitement en quelques minutes seulement. C'est simple et rapide.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Recherchez un trajet</h3>
+                    <p>Indiquez votre point de départ, destination et date. Choisissez parmi les trajets disponibles.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Réservez et voyagez</h3>
+                    <p>Contactez le conducteur, réservez votre place et profitez du voyage en toute sérénité.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Témoignages -->
+    <section class="testimonials">
+        <div class="container">
+            <h2>Ce que disent nos utilisateurs</h2>
+            <div class="testimonial-slider">
+                <div class="testimonial active">
+                    <img src="https://randomuser.me/api/portraits/women/32.jpg" alt="Marie">
+                    <p>"Je fais tous les jours le trajet Bordeaux-Lacq avec EcoRoute. Non seulement je divise mes frais par trois, mais j'ai rencontré des collègues de travail que je n'aurais jamais connus autrement !"</p>
+                    <div class="testimonial-author">Marie, 34 ans</div>
+                </div>
+                <div class="testimonial">
+                    <img src="https://randomuser.me/api/portraits/men/54.jpg" alt="Thomas">
+                    <p>"Étudiant à Lyon, EcoRoute m'a permis de rentrer chez mes parents à Grenoble régulièrement pour un prix imbattable. Le système de notation est rassurant et l'application est très intuitive."</p>
+                    <div class="testimonial-author">Thomas, 22 ans</div>
+                </div>
+                <div class="testimonial">
+                    <img src="https://randomuser.me/api/portraits/women/67.jpg" alt="Sophie">
+                    <p>"En tant que conductrice occasionnelle, j'apprécie de pouvoir rentabiliser mes déplacements professionnels. Les passagers sont toujours sympathiques et ponctuels. Je recommande vivement !"</p>
+                    <div class="testimonial-author">Sophie, 41 ans</div>
+                </div>
+            </div>
+            <div class="slider-controls">
+                <div class="slider-dot active" data-slide="0"></div>
+                <div class="slider-dot" data-slide="1"></div>
+                <div class="slider-dot" data-slide="2"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>EcoRoute</h3>
+                    <p>La plateforme de covoiturage leader en France, qui connecte des millions de conducteurs et passagers pour des trajets plus écologiques et économiques.</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Liens rapides</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Accueil</a></li>
+                        <li><a href="#">Rechercher un trajet</a></li>
+                        <li><a href="#">Proposer un trajet</a></li>
+                        <li><a href="#">Comment ça marche</a></li>
+                        <li><a href="#">Tarifs</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Informations</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">À propos</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Presse</a></li>
+                        <li><a href="#">Carrières</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Légal</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Conditions d'utilisation</a></li>
+                        <li><a href="#">Politique de confidentialité</a></li>
+                        <li><a href="#">Cookies</a></li>
+                        <li><a href="#">Mentions légales</a></li>
+                        <li><a href="#">Assurance</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 EcoRoute. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Menu mobile
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        const navLinks = document.querySelector('.nav-links');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            mobileMenuBtn.innerHTML = navLinks.classList.contains('active') 
+                ? '<i class="fas fa-times"></i>' 
+                : '<i class="fas fa-bars"></i>';
+        });
+        
+        // Gestion du formulaire de recherche
+        const searchForm = document.getElementById('rideSearch');
+        searchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const departure = document.getElementById('departure').value;
+            const destination = document.getElementById('destination').value;
+            const date = document.getElementById('date').value;
+            const passengers = document.getElementById('passengers').value;
+            
+            if (departure && destination && date) {
+                alert(`Recherche de trajet :\nDépart: ${departure}\nDestination: ${destination}\nDate: ${date}\nPassagers: ${passengers}\n\n(Fonctionnalité à implémenter avec un backend)`);
+                
+                // Ici, normalement, on redirigerait vers une page de résultats
+                // window.location.href = `/search?from=${departure}&to=${destination}&date=${date}&passengers=${passengers}`;
+            } else {
+                alert("Veuillez remplir tous les champs obligatoires.");
+            }
+        });
+        
+        // Slider de témoignages
+        const testimonials = document.querySelectorAll('.testimonial');
+        const dots = document.querySelectorAll('.slider-dot');
+        let currentSlide = 0;
+        
+        function showSlide(n) {
+            // Masquer tous les témoignages
+            testimonials.forEach(testimonial => {
+                testimonial.classList.remove('active');
+            });
+            
+            // Désactiver tous les points
+            dots.forEach(dot => {
+                dot.classList.remove('active');
+            });
+            
+            // Afficher le témoignage sélectionné et activer le point correspondant
+            currentSlide = (n + testimonials.length) % testimonials.length;
+            testimonials[currentSlide].classList.add('active');
+            dots[currentSlide].classList.add('active');
+        }
+        
+        // Ajouter les événements sur les points
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                showSlide(index);
+            });
+        });
+        
+        // Changer de slide automatiquement toutes les 5 secondes
+        setInterval(() => {
+            showSlide(currentSlide + 1);
+        }, 5000);
+        
+        // Définir la date d'aujourd'hui comme date minimale
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('date').setAttribute('min', today);
+        
+        // Simulation de la recherche de villes (autocomplete simplifié)
+        const departureInput = document.getElementById('departure');
+        const destinationInput = document.getElementById('destination');
+        
+        // Liste de villes françaises pour l'autocomplete
+        const frenchCities = [
+            "Paris", "Marseille", "Lyon", "Toulouse", "Nice", "Nantes", "Strasbourg", 
+            "Montpellier", "Bordeaux", "Lille", "Rennes", "Reims", "Le Havre", "Saint-Étienne",
+            "Toulon", "Grenoble", "Dijon", "Angers", "Nîmes", "Villeurbanne"
+        ];
+        
+        // Fonction pour créer une liste d'autocomplete
+        function createAutocompleteList(inputElement) {
+            // Supprimer les anciennes listes si elles existent
+            const existingList = inputElement.parentNode.querySelector('.autocomplete-list');
+            if (existingList) {
+                existingList.remove();
+            }
+            
+            const value = inputElement.value.toLowerCase();
+            if (value.length < 2) return;
+            
+            const filteredCities = frenchCities.filter(city => 
+                city.toLowerCase().includes(value)
+            );
+            
+            if (filteredCities.length === 0) return;
+            
+            // Créer la liste
+            const list = document.createElement('ul');
+            list.className = 'autocomplete-list';
+            list.style.position = 'absolute';
+            list.style.backgroundColor = 'white';
+            list.style.border = '1px solid #ddd';
+            list.style.borderRadius = '4px';
+            list.style.width = '100%';
+            list.style.zIndex = '1000';
+            list.style.maxHeight = '200px';
+            list.style.overflowY = 'auto';
+            list.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+            
+            filteredCities.forEach(city => {
+                const listItem = document.createElement('li');
+                listItem.textContent = city;
+                listItem.style.padding = '10px';
+                listItem.style.cursor = 'pointer';
+                listItem.style.borderBottom = '1px solid #eee';
+                
+                listItem.addEventListener('click', () => {
+                    inputElement.value = city;
+                    list.remove();
+                });
+                
+                listItem.addEventListener('mouseenter', () => {
+                    listItem.style.backgroundColor = '#f5f5f5';
+                });
+                
+                listItem.addEventListener('mouseleave', () => {
+                    listItem.style.backgroundColor = 'white';
+                });
+                
+                list.appendChild(listItem);
+            });
+            
+            // Positionner la liste sous l'input
+            const inputRect = inputElement.getBoundingClientRect();
+            list.style.top = `${inputRect.bottom}px`;
+            list.style.left = `${inputRect.left}px`;
+            list.style.width = `${inputRect.width}px`;
+            
+            inputElement.parentNode.appendChild(list);
+            
+            // Fermer la liste si on clique ailleurs
+            document.addEventListener('click', function closeList(e) {
+                if (!inputElement.parentNode.contains(e.target)) {
+                    list.remove();
+                    document.removeEventListener('click', closeList);
+                }
+            });
+        }
+        
+        // Ajouter les événements pour l'autocomplete
+        departureInput.addEventListener('input', () => {
+            createAutocompleteList(departureInput);
+        });
+        
+        destinationInput.addEventListener('input', () => {
+            createAutocompleteList(destinationInput);
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
  
 {% endblock %}
