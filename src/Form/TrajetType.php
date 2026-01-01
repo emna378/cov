@@ -20,10 +20,7 @@ class TrajetType extends AbstractType
             ->add('d_h_depart')
             ->add('place_dispo')
             ->add('status')
-            ->add('chauffeur', EntityType::class, [
-                'class' => Chauffeur::class,
-                'choice_label' => 'id',
-            ])
+            
         ;
     }
 

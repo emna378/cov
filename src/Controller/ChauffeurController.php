@@ -56,8 +56,17 @@ public function new(Request $request, EntityManagerInterface $entityManager, Use
     #[Route('/{id}', name: 'app_chauffeur_show', methods: ['GET'])]
     public function show(Chauffeur $chauffeur): Response
     {
+ // ✅ Vérification : seul le chauffeur connecté peut voir son dashboard
+    if ($chauffeur !== $this->getUser()) {
+        throw $this->createAccessDeniedException('Vous ne pouvez pas accéder au dashboard d’un autre chauffeur.');
+    }
+         // Les trajets de ce chauffeur
+        $trajets = $chauffeur->getTrajets();
+         $voitures = $chauffeur->getVoitures();
         return $this->render('chauffeur/show.html.twig', [
             'chauffeur' => $chauffeur,
+            'trajets' => $trajets,
+            'voitures' => $voitures,
         ]);
     }
 
@@ -91,4 +100,9 @@ public function new(Request $request, EntityManagerInterface $entityManager, Use
 
         return $this->redirectToRoute('app_chauffeur_index', [], Response::HTTP_SEE_OTHER);
     }
+
+
+
+ 
+
 }

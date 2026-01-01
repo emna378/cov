@@ -23,22 +23,35 @@ final class VoitureController extends AbstractController
     }
 
     #[Route('/new', name: 'app_voiture_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $em): Response
     {
         $voiture = new Voiture();
+
         $form = $this->createForm(VoitureType::class, $voiture);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($voiture);
-            $entityManager->flush();
+            $chauffeur = $this->getUser();
 
-            return $this->redirectToRoute('app_voiture_index', [], Response::HTTP_SEE_OTHER);
+            // Vérifier que l'utilisateur connecté est bien un Chauffeur
+            if (!$chauffeur instanceof \App\Entity\Chauffeur) {
+                throw $this->createAccessDeniedException('Vous devez être connecté en tant que chauffeur.');
+            }
+
+            // Associer automatiquement la voiture au chauffeur connecté
+            $voiture->setChauffeur($chauffeur);
+
+            $em->persist($voiture);
+            $em->flush();
+
+            return $this->redirectToRoute('app_chauffeur_show', [
+                'id' => $chauffeur->getId(),
+            ]);
         }
 
         return $this->render('voiture/new.html.twig', [
             'voiture' => $voiture,
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
     }
 
@@ -51,31 +64,39 @@ final class VoitureController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_voiture_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Voiture $voiture, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Voiture $voiture, EntityManagerInterface $em): Response
     {
         $form = $this->createForm(VoitureType::class, $voiture);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+            $em->flush();
 
             return $this->redirectToRoute('app_voiture_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('voiture/edit.html.twig', [
             'voiture' => $voiture,
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
     }
 
     #[Route('/{id}', name: 'app_voiture_delete', methods: ['POST'])]
-    public function delete(Request $request, Voiture $voiture, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, Voiture $voiture, EntityManagerInterface $em): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$voiture->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($voiture);
-            $entityManager->flush();
+        // Utiliser $request->request->get('_token') pour récupérer le CSRF token
+        if ($this->isCsrfTokenValid('delete'.$voiture->getId(), $request->request->get('_token'))) {
+            $em->remove($voiture);
+            $em->flush();
         }
+  $chauffeur = $this->getUser();
 
-        return $this->redirectToRoute('app_voiture_index', [], Response::HTTP_SEE_OTHER);
+    if (!$chauffeur instanceof \App\Entity\Chauffeur) {
+        throw $this->createAccessDeniedException();
     }
+
+    return $this->redirectToRoute('app_chauffeur_show', [
+        'id' => $chauffeur->getId(),
+    ]);
+}
 }

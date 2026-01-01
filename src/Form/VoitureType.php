@@ -17,10 +17,7 @@ class VoitureType extends AbstractType
             ->add('model')
             ->add('immatriculation')
             ->add('color')
-            ->add('chauffeur', EntityType::class, [
-                'class' => Chauffeur::class,
-                'choice_label' => 'id',
-            ])
+            
         ;
     }
 

@@ -22,25 +22,34 @@ final class TrajetController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_trajet_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
-    {
-        $trajet = new Trajet();
-        $form = $this->createForm(TrajetType::class, $trajet);
-        $form->handleRequest($request);
+   #[Route('/new', name: 'app_trajet_new', methods: ['GET','POST'])]
+public function new(Request $request, EntityManagerInterface $entityManager): Response
+{
+    $trajet = new Trajet();
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($trajet);
-            $entityManager->flush();
+    $chauffeur = $this->getUser();
+    if (!$chauffeur instanceof \App\Entity\Chauffeur) {
+        throw $this->createAccessDeniedException('Vous devez être un chauffeur pour créer un trajet.');
+    }
+    $trajet->setChauffeur($chauffeur);
 
-            return $this->redirectToRoute('app_trajet_index', [], Response::HTTP_SEE_OTHER);
-        }
+    $form = $this->createForm(TrajetType::class, $trajet);
+    $form->handleRequest($request);
 
-        return $this->render('trajet/new.html.twig', [
-            'trajet' => $trajet,
-            'form' => $form,
+    if ($form->isSubmitted() && $form->isValid()) {
+        $entityManager->persist($trajet);
+        $entityManager->flush();
+
+        return $this->redirectToRoute('app_chauffeur_show', [
+            'id' => $chauffeur->getId(),
         ]);
     }
+
+    return $this->render('trajet/new.html.twig', [
+        'trajet' => $trajet,
+        'form' => $form->createView(),
+    ]);
+}
 
     #[Route('/{id}', name: 'app_trajet_show', methods: ['GET'])]
     public function show(Trajet $trajet): Response
@@ -75,7 +84,15 @@ final class TrajetController extends AbstractController
             $entityManager->remove($trajet);
             $entityManager->flush();
         }
+$chauffeur = $this->getUser();
 
-        return $this->redirectToRoute('app_trajet_index', [], Response::HTTP_SEE_OTHER);
+    if (!$chauffeur instanceof \App\Entity\Chauffeur) {
+        throw $this->createAccessDeniedException();
     }
+
+    // Redirection vers le dashboard du chauffeur
+    return $this->redirectToRoute('app_chauffeur_show', [
+        'id' => $chauffeur->getId(),
+    ]);
+}
 }
