@@ -1,46 +1,592 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Trajet{% endblock %}
+{% block title %}Détails du trajet - EcoDrive{% endblock %}
 
 {% block body %}
-    <h1>Trajet</h1>
+<div class="trajet-container">
+    <div class="trajet-header">
+        <div class="header-background"></div>
+        <div class="header-content">
+            <div class="route-display">
+                <div class="route-point start">
+                    <div class="point-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="point-info">
+                        <span class="point-label">Départ</span>
+                        <h2 class="point-city">{{ trajet.depart }}</h2>
+                    </div>
+                </div>
+                
+                <div class="route-line">
+                    <div class="line-animation"></div>
+                    <div class="transport-icon">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                </div>
+                
+                <div class="route-point end">
+                    <div class="point-icon">
+                        <i class="fas fa-flag-checkered"></i>
+                    </div>
+                    <div class="point-info">
+                        <span class="point-label">Destination</span>
+                        <h2 class="point-city">{{ trajet.destination }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ trajet.id }}</td>
-            </tr>
-            <tr>
-                <th>Depart</th>
-                <td>{{ trajet.depart }}</td>
-            </tr>
-            <tr>
-                <th>Destination</th>
-                <td>{{ trajet.destination }}</td>
-            </tr>
-            <tr>
-                <th>Prix</th>
-                <td>{{ trajet.prix }}</td>
-            </tr>
-            <tr>
-                <th>D_h_depart</th>
-                <td>{{ trajet.dHDepart ? trajet.dHDepart|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Place_dispo</th>
-                <td>{{ trajet.placeDispo }}</td>
-            </tr>
-            <tr>
-                <th>Status</th>
-                <td>{{ trajet.status }}</td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="trajet-details-card">
+        <div class="details-header">
+            <h1><i class="fas fa-info-circle"></i> Détails du trajet</h1>
+            <div class="status-badge {% if trajet.status == 'actif' %}active{% else %}inactive{% endif %}">
+                {{ trajet.status }}
+            </div>
+        </div>
+        
+        <div class="details-grid">
+          
+            
+            <div class="detail-item">
+                <div class="detail-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div class="detail-content">
+                    <span class="detail-label">Date et heure de départ</span>
+                    <span class="detail-value">{{ trajet.dHDepart ? trajet.dHDepart|date('d/m/Y à H:i') : 'Non défini' }}</span>
+                </div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-icon">
+                    <i class="fas fa-tag"></i>
+                </div>
+                <div class="detail-content">
+                    <span class="detail-label">Prix par place</span>
+                    <span class="detail-value price">{{ trajet.prix }} €</span>
+                </div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="detail-content">
+                    <span class="detail-label">Places disponibles</span>
+                    <span class="detail-value seats">
+                        {{ trajet.placeDispo }} place{% if trajet.placeDispo > 1 %}s{% endif %}
+                        <div class="seats-indicator">
+                            {% for i in 1..5 %}
+                                <div class="seat-dot {% if i <= trajet.placeDispo %}available{% else %}occupied{% endif %}"></div>
+                            {% endfor %}
+                        </div>
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="action-section">
+            <div class="action-buttons">
+                <a href="{{ app.request.headers.get('referer') }}" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Retour
+                </a>
+                
+                <div class="danger-actions">
+                    {{ include('trajet/_delete_form.html.twig') }}
+                </div>
+            </div>
+            
+            <div class="eco-stats">
+                <div class="eco-stat-item">
+                    <i class="fas fa-leaf"></i>
+                    <span>Ce trajet permet d'économiser environ <strong>5 kg de CO₂</strong></span>
+                </div>
+            </div>
+            
+            <div class="meta-info">
+                <p><i class="far fa-clock"></i> Affiché le {{ "now"|date("d/m/Y à H:i") }}</p>
+            </div>
+        </div>
+    </div>
+</div>
 
-      <a href="{{ app.request.headers.get('referer') }}">Retour</a>
+<style>
+.trajet-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
 
-  
+.trajet-header {
+    background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%);
+    border-radius: 20px;
+    padding: 40px;
+    margin-bottom: 30px;
+    position: relative;
+    overflow: hidden;
+    color: white;
+    box-shadow: 0 10px 30px rgba(46, 125, 50, 0.3);
+}
 
-    {{ include('trajet/_delete_form.html.twig') }}
+.header-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at top right, rgba(255,255,255,0.15) 0%, transparent 50%);
+}
+
+.route-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    z-index: 1;
+}
+
+.route-point {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex: 1;
+}
+
+.route-point.start {
+    justify-content: flex-start;
+}
+
+.route-point.end {
+    justify-content: flex-end;
+    flex-direction: row-reverse;
+    text-align: right;
+}
+
+.point-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+.point-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.point-label {
+    font-size: 14px;
+    opacity: 0.9;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.point-city {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.route-line {
+    flex: 2;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.4);
+    margin: 0 40px;
+    border-radius: 2px;
+    position: relative;
+}
+
+.line-animation {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+    animation: shimmer 3s infinite;
+    border-radius: 2px;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.transport-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #2E7D32;
+    font-size: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.trajet-details-card {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e8f5e9;
+}
+
+.details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #e8f5e9;
+}
+
+.details-header h1 {
+    font-size: 28px;
+    color: #2E7D32;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.details-header h1 i {
+    color: #4CAF50;
+}
+
+.status-badge {
+    padding: 8px 24px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+body {
+color: var(--text-color);
+            line-height: 1.6;
+            background-color: #fff;
+
+}
+.status-badge.active {
+    background: linear-gradient(135deg, #4CAF50, #2E7D32);
+    color: white;
+}
+
+.status-badge.inactive {
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+    color: white;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 25px;
+    background: #f1f8e9;
+    border-radius: 15px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-left: 4px solid #4CAF50;
+}
+
+.detail-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(76, 175, 80, 0.15);
+    background: #e8f5e9;
+}
+
+.detail-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+    background: linear-gradient(135deg, #4CAF50, #2E7D32);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+    box-shadow: 0 6px 12px rgba(76, 175, 80, 0.25);
+}
+
+.detail-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.detail-label {
+    font-size: 14px;
+    color: #558b2f;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.detail-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1b5e20;
+}
+
+.detail-value.price {
+    color: #2E7D32;
+    font-size: 26px;
+}
+
+.seats-indicator {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.seat-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #c8e6c9;
+    transition: all 0.3s ease;
+}
+
+.seat-dot.available {
+    background: #4CAF50;
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+}
+
+.seat-dot.occupied {
+    background: #c8e6c9;
+}
+
+.action-section {
+    padding-top: 30px;
+    border-top: 2px solid #e8f5e9;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.btn-back {
+    padding: 15px 30px;
+    background: linear-gradient(135deg, #4CAF50, #2E7D32);
+    color: white;
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    box-shadow: 0 6px 15px rgba(76, 175, 80, 0.3);
+}
+
+.btn-back:hover {
+    background: linear-gradient(135deg, #2E7D32, #1b5e20);
+    transform: translateX(-5px);
+    box-shadow: 0 10px 25px rgba(46, 125, 50, 0.4);
+}
+
+.danger-actions {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.eco-stats {
+    background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #a5d6a7;
+}
+
+.eco-stat-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: #1b5e20;
+    font-size: 16px;
+    justify-content: center;
+}
+
+.eco-stat-item i {
+    font-size: 20px;
+    color: #2E7D32;
+}
+
+.eco-stat-item strong {
+    color: #1b5e20;
+    font-weight: 700;
+}
+
+.meta-info {
+    text-align: center;
+    color: #81c784;
+    font-size: 14px;
+    padding-top: 20px;
+    border-top: 1px solid #e8f5e9;
+}
+
+.meta-info i {
+    margin-right: 8px;
+    color: #4CAF50;
+}
+
+/* Animation pour les points disponibles */
+@keyframes pulse-green {
+    0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+    70% { box-shadow: 0 0 0 6px rgba(76, 175, 80, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+}
+
+.seat-dot.available {
+    animation: pulse-green 2s infinite;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .trajet-header {
+        padding: 25px;
+    }
+    
+    .route-display {
+        flex-direction: column;
+        gap: 30px;
+    }
+    
+    .route-point {
+        flex-direction: column;
+        text-align: center;
+        width: 100%;
+    }
+    
+    .route-point.end {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .route-line {
+        width: 4px;
+        height: 60px;
+        margin: 10px 0;
+    }
+    
+    .transport-icon {
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+    }
+    
+    .point-city {
+        font-size: 22px;
+    }
+    
+    .details-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .details-header {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .btn-back {
+        justify-content: center;
+        text-align: center;
+    }
+    
+    .danger-actions {
+        justify-content: center;
+    }
+    
+    .eco-stat-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .trajet-container {
+        padding: 10px;
+    }
+    
+    .trajet-header, .trajet-details-card {
+        padding: 20px;
+    }
+    
+    .point-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 18px;
+    }
+    
+    .point-city {
+        font-size: 18px;
+    }
+    
+    .detail-item {
+        padding: 15px;
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+    
+    .detail-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+    
+    .detail-value {
+        font-size: 18px;
+    }
+    
+    .details-header h1 {
+        font-size: 22px;
+    }
+    
+    .btn-back {
+        padding: 12px 20px;
+        font-size: 14px;
+    }
+}
+</style>
 {% endblock %}
