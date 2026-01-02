@@ -1,11 +1,163 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Voiture{% endblock %}
+{% block title %}Ajouter une voiture - Ecodrive{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .edit-container {
+        background: #f5f7fa;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .edit-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        width: 100%;
+        max-width: 600px;
+    }
+
+    .edit-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .edit-title {
+        color: #1a8c4e;
+        font-size: 28px;
+        font-weight: 700;
+    }
+
+    .edit-subtitle {
+        color: #666;
+        font-size: 16px;
+        margin-bottom: 25px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+        width: 100%;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    .form-group input {
+        width: 60%;
+        min-width: 200px;
+        padding: 12px 15px;
+        border: 2px solid #e0f2e9;
+        border-radius: 8px;
+        font-size: 15px;
+        transition: all 0.3s;
+        background: #f8fdfa;
+        text-align: center;
+    }
+
+    .form-group input:focus {
+        border-color: #1a8c4e;
+        box-shadow: 0 0 0 3px rgba(26, 140, 78, 0.1);
+        background: white;
+        outline: none;
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #1a8c4e 0%, #2ecc71 100%);
+        color: white;
+        padding: 12px 30px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 16px;
+        cursor: pointer;
+        border: none;
+        transition: all 0.3s;
+        min-width: 200px;
+        text-align: center;
+        margin-top: 15px;
+    }
+
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(26, 140, 78, 0.3);
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 16px;
+        cursor: pointer;
+        border: none;
+        transition: all 0.3s;
+        min-width: 200px;
+    }
+
+    .btn-secondary:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        gap: 15px;
+    }
+
+    @media (max-width: 576px) {
+        .form-group input {
+            width: 100%;
+        }
+
+        .btn-success, .btn-secondary {
+            width: 100%;
+        }
+
+        .edit-card {
+            padding: 25px 20px;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block body %}
-    <h1>Create new Voiture</h1>
+<div class="edit-container">
+    <div class="edit-card">
+        <div class="edit-header">
+            <h1 class="edit-title">Ajouter une voiture</h1>
+            <p class="edit-subtitle">Remplissez les informations de votre véhicule</p>
+        </div>
 
-    {{ include('voiture/_form.html.twig') }}
+        <form method="post" action="">
+            {% for field in form %}
+                <div class="form-group">
+                    {{ form_label(field) }}
+                    {{ form_widget(field, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(field) }}
+                </div>
+            {% endfor %}
 
-    <a href="{{ path('app_voiture_index') }}">back to list</a>
+            <div class="action-buttons">
+                <button type="submit" class="btn-success">
+                    Ajouter
+                </button>
+             <button type="button" class="btn btn-secondary" onclick="history.back()">
+                    Retour
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}

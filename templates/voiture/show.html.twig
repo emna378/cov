@@ -1,34 +1,177 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Voiture{% endblock %}
+{% block title %}Voiture - Ecodrive{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .card-container {
+        background: #f5f7fa;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        width: 100%;
+        max-width: 600px;
+        text-align: center;
+    }
+
+    h1 {
+        color: #1a8c4e;
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .subtitle {
+        color: #666;
+        font-size: 16px;
+        margin-bottom: 30px;
+    }
+
+    .detail {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 15px;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .detail-item {
+        text-align: center;
+    }
+
+    .detail-label {
+        font-size: 12px;
+        color: #666;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+    }
+
+    .detail-value {
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .color-preview {
+        width: 25px;
+        height: 25px;
+        border-radius: 5px;
+        border: 2px solid #ddd;
+        display: inline-block;
+        margin-left: 5px;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 30px;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 12px 30px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 16px;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+        transition: all 0.3s;
+        min-width: 140px;
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #1a8c4e 0%, #2ecc71 100%);
+        color: white;
+    }
+
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(26, 140, 78, 0.3);
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+
+    .btn-danger {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        color: white;
+    }
+
+    .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(231, 76, 60, 0.35);
+    }
+
+    @media (max-width: 576px) {
+        .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block body %}
-    <h1>Voiture</h1>
+<div class="card-container">
+    <div class="card">
+        <h1>Voiture</h1>
+        <p class="subtitle">Détails de la voiture</p>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ voiture.id }}</td>
-            </tr>
-            <tr>
-                <th>Model</th>
-                <td>{{ voiture.model }}</td>
-            </tr>
-            <tr>
-                <th>Immatriculation</th>
-                <td>{{ voiture.immatriculation }}</td>
-            </tr>
-            <tr>
-                <th>Color</th>
-                <td>{{ voiture.color }}</td>
-            </tr>
-        </tbody>
-    </table>
+        <div class="detail">
+            <div class="detail-item">
+                <div class="detail-label">Id</div>
+                <div class="detail-value">{{ voiture.id }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Modèle</div>
+                <div class="detail-value">{{ voiture.model }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Immatriculation</div>
+                <div class="detail-value">{{ voiture.immatriculation }}</div>
+            </div>
+            {% if voiture.color %}
+            <div class="detail-item">
+                <div class="detail-label">Couleur</div>
+                <div class="detail-value">
+                    {{ voiture.color }}
+                    <span class="color-preview" style="background-color: {{ voiture.color }}"></span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
 
-    <a href="{{ path('app_voiture_index') }}">back to list</a>
+        <div class="action-buttons">
+            
 
-    <a href="{{ path('app_voiture_edit', {'id': voiture.id}) }}">edit</a>
+            <button type="button" class="btn btn-secondary" onclick="history.back()">
+                    Retour
+                </button>
 
-    {{ include('voiture/_delete_form.html.twig') }}
+            <form method="post" action="{{ path('app_voiture_delete', {'id': voiture.id}) }}" 
+                  onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette voiture ?');"
+                  style="display:inline;">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ voiture.id) }}">
+                <button type="submit" class="btn btn-danger">Supprimer</button>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}

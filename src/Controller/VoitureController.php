@@ -63,23 +63,24 @@ final class VoitureController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_voiture_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Voiture $voiture, EntityManagerInterface $em): Response
-    {
-        $form = $this->createForm(VoitureType::class, $voiture);
-        $form->handleRequest($request);
+   #[Route('/{id}/edit', name: 'app_voiture_edit', methods: ['GET', 'POST'])]
+public function edit(Request $request, Voiture $voiture, EntityManagerInterface $em): Response
+{
+    $form = $this->createForm(VoitureType::class, $voiture);
+    $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $em->flush();
+    if ($form->isSubmitted() && $form->isValid()) {
+        $em->flush();
 
-            return $this->redirectToRoute('app_voiture_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->render('voiture/edit.html.twig', [
-            'voiture' => $voiture,
-            'form' => $form->createView(),
-        ]);
+        // Rester sur la même page après update
+        return $this->redirectToRoute('app_voiture_edit', ['id' => $voiture->getId()], Response::HTTP_SEE_OTHER);
     }
+
+    return $this->render('voiture/edit.html.twig', [
+        'voiture' => $voiture,
+        'form' => $form->createView(),
+    ]);
+}
 
     #[Route('/{id}', name: 'app_voiture_delete', methods: ['POST'])]
     public function delete(Request $request, Voiture $voiture, EntityManagerInterface $em): Response

@@ -59,23 +59,28 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_trajet_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Trajet $trajet, EntityManagerInterface $entityManager): Response
-    {
-        $form = $this->createForm(TrajetType::class, $trajet);
-        $form->handleRequest($request);
+  #[Route('/{id}/edit', name: 'app_trajet_edit', methods: ['GET', 'POST'])]
+public function edit(Request $request, Trajet $trajet, EntityManagerInterface $em): Response
+{
+    $form = $this->createForm(TrajetType::class, $trajet);
+    $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+    // Récupérer l'URL précédente depuis l'entête HTTP Referer
+    $referer = $request->headers->get('referer');
 
-            return $this->redirectToRoute('app_trajet_index', [], Response::HTTP_SEE_OTHER);
-        }
+    if ($form->isSubmitted() && $form->isValid()) {
+        $em->flush();
 
-        return $this->render('trajet/edit.html.twig', [
-            'trajet' => $trajet,
-            'form' => $form,
-        ]);
+        // Redirection vers la page précédente ou, si aucune, vers le dashboard
+        return $this->redirect($referer ?: $this->generateUrl('app_chauffeur_dashboard'));
     }
+
+    return $this->render('trajet/edit.html.twig', [
+        'trajet' => $trajet,
+        'form' => $form->createView(),
+    ]);
+}
+
 
     #[Route('/{id}', name: 'app_trajet_delete', methods: ['POST'])]
     public function delete(Request $request, Trajet $trajet, EntityManagerInterface $entityManager): Response

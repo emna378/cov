@@ -24,8 +24,8 @@ class ChauffeurType extends AbstractType
             ->add('status')
              ->add('roles', ChoiceType::class, [
         'choices' => [
-            'Utilisateur' => 'ROLE_USER',
-            'Admin' => 'ROLE_ADMIN',
+            'chauffeur' => 'ROLE_USER',
+          
         ],
         'multiple' => true,
         'expanded' => true,
